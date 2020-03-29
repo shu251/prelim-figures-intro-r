@@ -44,8 +44,13 @@ Your RStudio should look like this:
 ![Rstudio screenshot](https://github.com/shu251/prelim-figures-intro-r/blob/master/figures/screenshot-rstudio-361.png)
 
 _Explaination of above image_:   
-The Rcode is listed in the *top left* in this image. When you place your cursor in this code area, **execute a line of code by: *COMMAND + ENTER* (Mac) or *CTRL + ENTER* (Windows)**. When a line of code is executed, it is "sent" to the console shown below. This way you can write whole workflows of code, save it as a script (*.R*) and be able to re-open it and modify. To the right of the code and console are 2 other windows. The top right is a print out of your 'Global Environment'. As you "import" things with your code this will populate with some basic information about what you've got loaded up. Bottom right has several other tabs, a help menu will pop-up here when you execute a help command and when we get to plotting below, this is where the plots show up. How fun. Please read up on other things RStudio has to offer - it is great and constantly open on my computer. [See this tutorial from Software Carpentry](https://swcarpentry.github.io/r-novice-gapminder/01-rstudio-intro/). 
-The Rcode shown here needs to be able to find all the files you want to work with. So you need to either open it via a Rproject from your working directory or execute a line of code to tell it where to look on your computer:
+1. The Rcode is listed in the *top left* in this image. When you place your cursor in this code area, **execute a line of code by: *COMMAND + ENTER* (Mac) or *CTRL + ENTER* (Windows)**. When a line of code is executed, it is "sent" to the console shown below. This way you can write whole workflows of code, save it as a script (*.R* file) and be able to re-open it and modify.
+2. To the right of the code and console are 2 other windows. The top right is a print out of your 'Global Environment'. As you import things with your code this will populate with basic information about what you've got loaded up (what objects are active). 
+3. Bottom right has several other tabs, a help menu will pop-up here when you execute a help command and when we get to plotting below, this is where the plots show up. How fun!
+4. Please read up on other things RStudio has to offer - it is great and constantly open on my computer. [See this tutorial from Software Carpentry](https://swcarpentry.github.io/r-novice-gapminder/01-rstudio-intro/).    
+
+
+The Rcode shown (_prelim-fig-tagseq.R_) needs to be able to find all the files you want to work with. So you need to either open it via a Rproject from your working directory or execute a line of code to tell it where to look on your computer:
 ```
 # Set your working directory to this repo by modifying this line of code:
 setwd("YOUR-PATH/prelim-figures-intro-r/")
@@ -96,9 +101,35 @@ colnames(asv_counts) # What are all of my columns named?
 View(asv_counts) #Opens new window to show what data frame looks like
 ```
 
-### IIa. Make basic plots - first look at data
+### IIa. Make basic plots
+My priority when I first get new data is to get a preliminary look at how much data I have. I will address the below questions by demonstrating some basic plotting features and how to make and export data summary tables.
 
 #### _How many sequences are in each of my samples? What about ASVs or OTUs?_
+The standard format for OTU or ASV tables is each row is a 'species designation' and the columns are rows. This is _wide format_. To work in R, it is generally best to change this to long format.
+```
+asv_counts_long <- melt(asv_counts)
+head(asv_counts_long) # View new data frame
+```
+Now there is a new column called **variable** that lists all the unique sample names.   
+
+Lets make our first plot to see how many sequences are in each of my samples.
+
+```
+library(ggplot2)
+# Basic ggplot
+ggplot(asv_counts_long, aes(x = variable, y = value)) + geom_bar(stat = "identity")
+# ggplot is a la carte! So let's add on some information to modify the x-axis labels. FYI - these ggplot will get fancier and fancier as we go along.
+#
+# Add on some attributes
+ggplot(asv_counts_long, aes(x = variable, y = value)) + #Input dataframe info
+  geom_bar(stat = "identity") + #Designates bar plot!
+  theme(axis.text.x = element_text(angle = 90)) #Theme aesthetic stuff.
+```
+The two plots created are a basic view of the total number of sequences per sample and demonstrate how ggplot2 is _a la carte_!
+   The 2nd plot should look like this:
+
+![basic plot](https://github.com/shu251/prelim-figures-intro-r/blob/master/figures/Basic-firstplot.jpeg)
+
 #### _What is the distribution of small ASVs or OTUs?_
 
 ## III. Data wrangling & processing
