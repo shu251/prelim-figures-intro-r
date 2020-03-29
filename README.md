@@ -104,7 +104,7 @@ View(asv_counts) #Opens new window to show what data frame looks like
 ### IIa. Make basic plots
 My priority when I first get new data is to get a preliminary look at how much data I have. I will address the below questions by demonstrating some basic plotting features and how to make and export data summary tables.
 
-#### _How many sequences are in each of my samples? What about ASVs or OTUs?_
+### _How many sequences are in each of my samples?
 The standard format for OTU or ASV tables is each row is a 'species designation' and the columns are rows. This is _wide format_. To work in R, it is generally best to change this to long format.
 ```
 asv_counts_long <- melt(asv_counts)
@@ -130,7 +130,83 @@ The two plots created are a basic view of the total number of sequences per samp
 
 ![basic plot](https://github.com/shu251/prelim-figures-intro-r/blob/master/figures/Basic-firstplot.jpeg)
 
-#### _What is the distribution of small ASVs or OTUs?_
+The code available in this repo has several examples of adding on aesthetics for this plot. Several good references for making your ggplots fancy and ready for publication:
+* [ggplot2 cheat sheet](https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf)
+* [THE ggplot website](https://ggplot2.tidyverse.org)
+* [This blog](https://cedricscherer.netlify.com/2019/08/05/a-ggplot2-tutorial-for-beautiful-plotting-in-r/)
+* [graph gallery for inspiration](https://www.r-graph-gallery.com)
+
+To further modify the input data frame and generate even more comprehensive plots:
+```
+# Create new columns by separating out what is in the variable column, this will help us sort everything.
+# Let's break this plot out a bit by separating the variable column 
+unique(asv_counts_long$variable) # What are all of my sample names?
+asv_counts_long_cols <- separate(data = asv_counts_long, col = variable, into = c("SAMPLE", "SAMPLE_NUMBER", "SITE", "SITE_NAME", "YEAR"), sep = "_", remove = FALSE)
+head(asv_counts_long_cols)
+#
+ggplot(asv_counts_long_cols, aes(x = variable, y = value, fill = SITE)) + #Input dataframe info, Added SITE as a fill aesthetic!
+  geom_bar(stat = "identity") + #Designates bar plot!
+  theme(axis.text.x = element_text(angle = 90))+ #Theme aesthetic stuff
+  facet_grid(.~YEAR, scales = "free", space = "free")
+```
+
+### IIb. Basic data wrangling
+Using **dplyr** we will _wrangle_ this data frame by summing all the sequence counts per sample and counting the number of occurences (OTUs or ASVs) per sample. [dplyr is a powerful tool in R](https://dplyr.tidyverse.org). There is a specific dplyr syntax:
+```
+asv_counts_summary <- asv_counts_long_cols %>%   # Assign a new table
+  group_by(variable, SITE, SITE_NAME, YEAR) %>%  # Assign how you're going to "group your samples" - include variable that will remain unique in your output table.
+  summarise(SUM = sum(value)) %>%   #Function to perform, in this case add up the value column
+  data.frame #convert new table into a dataframe
+head(asv_counts_summary) # New table includes all the variables I had above
+```
+
+At the **summarise()** line, we can apply additional functions.
+```
+asv_counts_summary <- asv_counts_long_cols %>%  
+  group_by(variable, SITE, SITE_NAME, YEAR) %>%
+  filter(value > 0) %>%   # Removes rows where the value was = 0
+  summarise(SUM = sum(value), ASV_COUNT = length(value)) %>% # added an ASV_COUNT column to count up all the entries for value. Which doesn't include any zeroes.
+  data.frame
+```
+
+Now, let's make this fancier two panel plot that shows the total number of sequences per sample and the total number of ASVs per sample.
+![final plot](https://github.com/shu251/prelim-figures-intro-r/blob/master/figures/2panel-totalreadsASV-plot.jpeg)
+
+```
+seq_count_plot <- ggplot(asv_counts_summary, aes(x = variable, y = SUM, fill = SITE)) + #Input dataframe info, Added SITE as a fill aesthetic!
+  geom_bar(stat = "identity") + #Designates bar plot!
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90))+ #Theme aesthetic stuff
+  facet_grid(.~YEAR, scales = "free", space = "free")
+
+asv_count_plot <- ggplot(asv_counts_summary, aes(x = variable, y = ASV_COUNT, fill = SITE)) + #Input dataframe info, Added SITE as a fill aesthetic!
+  geom_bar(stat = "identity") + #Designates bar plot!
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90))+ #Theme aesthetic stuff
+  facet_grid(.~YEAR, scales = "free", space = "free")
+
+seq_count_plot + labs(x = "Samples", y = "Total number of reads", title = "Total reads per sample")
+asv_count_plot + labs(x = "Samples", y = "Total number of ASVs", title = "Total ASVs per sample")
+
+library(RColorBrewer)
+display.brewer.all()
+
+seq_count_plot + 
+  labs(x = "Samples", y = "Total number of reads", title = "Total reads per sample") +
+  scale_fill_brewer(palette = "Set1")
+asv_count_plot + 
+  labs(x = "Samples", y = "Total number of ASVs", title = "Total ASVs per sample") +
+  scale_fill_brewer(palette = "Set1")
+
+library(cowplot)
+
+plot_grid(seq_count_plot + labs(x = "Samples", y = "Total number of reads", title = "Total reads per sample") + scale_fill_brewer(palette = "Set1") + scale_y_log10(), 
+          asv_count_plot + labs(x = "Samples", y = "Total number of ASVs", title = "Total ASVs per sample") + scale_fill_brewer(palette = "Set1"), labels = c("a", "b"))
+
+```
+
+
+### _What is the distribution of small ASVs or OTUs?_
 
 ## III. Data wrangling & processing
 
