@@ -41,8 +41,7 @@ In RStudio, migrate to this github repo or your working directory. Alternatively
 
 Your RStudio should look like this:
 
-##### INSERT image    
-
+![Rstudio screenshot](https://github.com/shu251/prelim-figures-intro-r/blob/master/figures/screenshot-rstudio-361.png)
 
 _Explaination of above image_:   
 The Rcode is listed in the *top left* in this image. When you place your cursor in this code area, **execute a line of code by: *COMMAND + ENTER* (Mac) or *CTRL + ENTER* (Windows)**. When a line of code is executed, it is "sent" to the console shown below. This way you can write whole workflows of code, save it as a script (*.R*) and be able to re-open it and modify. To the right of the code and console are 2 other windows. The top right is a print out of your 'Global Environment'. As you "import" things with your code this will populate with some basic information about what you've got loaded up. Bottom right has several other tabs, a help menu will pop-up here when you execute a help command and when we get to plotting below, this is where the plots show up. How fun. Please read up on other things RStudio has to offer - it is great and constantly open on my computer. [See this tutorial from Software Carpentry](https://swcarpentry.github.io/r-novice-gapminder/01-rstudio-intro/). 
