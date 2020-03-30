@@ -170,8 +170,11 @@ asv_counts_summary <- asv_counts_long_cols %>%
 ```
 
 Now, let's make this fancier two panel plot that shows the total number of sequences per sample and the total number of ASVs per sample.
-![final plot](https://github.com/shu251/prelim-figures-intro-r/blob/master/figures/2panel-totalreadsASV-plot.jpeg)
+![final plot](https://github.com/shu251/prelim-figures-intro-r/blob/master/figures/2panel-totalreadsASV-plot.jpeg)   
 
+**Together, these plots address, _What is the total number of sequences per sample?_ and _What is the total number of ASVs or OTUs per sample?_**    
+
+Code to generate each plot, add color, compile into a 2 panel plot, and modify the y-axis scale:
 ```
 seq_count_plot <- ggplot(asv_counts_summary, aes(x = variable, y = SUM, fill = SITE)) + #Input dataframe info, Added SITE as a fill aesthetic!
   geom_bar(stat = "identity") + #Designates bar plot!
@@ -205,27 +208,40 @@ plot_grid(seq_count_plot + labs(x = "Samples", y = "Total number of reads", titl
 
 ```
 
+## III. Data pre-processing
+Next, we will use a few different R packages to remove potential contaminants and estimate alpha diversity.
 
-### _What is the distribution of small ASVs or OTUs?_
+### IIIa. _Consider blank samples_
+Here, we will be using the [decontam package](https://benjjneb.github.io/decontam/vignettes/decontam_intro.html) from Benjamin Callahan & Nicole Davis. [Paper here](https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0605-2). The first step is to import your sequence data as a **phyloseq** object.
 
-## III. Data wrangling & processing
+```
+library(decontam); library(phyloseq)
 
-### IIIa. _Convert data frame to long format_
-Sum by sample only and make a bar plot to show the total number 
+```
 
-
-### IIIb. _Remove a sample_
-Remove sample that didn't sequence well
-
-### IIIc. _Consider blank samples_
+The website above includes a more comprehensive tutorial. Here, we will cover removing contaminate ASVs from control samples that were negative blanks collected at the same time as the samples or during the extraction process.
 library(decontam)
 
-### IIId. _Add/include metadata_
+* import into phyloseq
+* decontam
+* evaluate how many sequences were removed
+
+
+### IIIb. _Add/include metadata_
 Import separate table with additional Site information
+
+* export phyloseq and add additional metadata
+* save R objects
+
+### IIIc. _Phyloseq & alpha diversity_
+
+* Demonstrate uses of phyloseq
+* alpha diversity with DivNet
 
 ## IV. Data visualization
 
-ggplot2
+* Import save dataframe
+* Data wrangling again for variable names
 
 ### IVa. _Sum data by diffrent attributes - barplot_
 geom_bar
@@ -242,10 +258,8 @@ geom_area
 ### IVe. _Box plot_
 geom_boxplot
 
-## V. Data normalization - best practices!
+## V. Data normalization practices
 
-### Va. Alpha and beta diversity
+### Va.  MDS, PCoA, clustering
 
-### Vb.  MDS, PCoA, clustering
-
-### Vc. Interpretation of tag-sequencing data
+### Vb. Interpretation of tag-sequencing data
