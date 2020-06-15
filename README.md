@@ -104,7 +104,7 @@ View(asv_counts) #Opens new window to show what data frame looks like
 ### IIa. Make basic plots
 My priority when I first get new data is to get a preliminary look at how much data I have. I will address the below questions by demonstrating some basic plotting features and how to make and export data summary tables.
 
-### _How many sequences are in each of my samples?
+### _How many sequences are in each of my samples?_
 The standard format for OTU or ASV tables is each row is a 'species designation' and the columns are rows. This is _wide format_. To work in R, it is generally best to change this to long format.
 ```
 asv_counts_long <- melt(asv_counts)
@@ -172,13 +172,16 @@ asv_counts_summary <- asv_counts_long_cols %>%
 Now, let's make this fancier two panel plot that shows the total number of sequences per sample and the total number of ASVs per sample.
 ![final plot](https://github.com/shu251/prelim-figures-intro-r/blob/master/figures/2panel-totalreadsASV-plot.jpeg)   
 
-**Together, these plots address, _What is the total number of sequences per sample?_ and _What is the total number of ASVs or OTUs per sample?_**    
+**Together, these plots address:**
+*  _What is the total number of sequences per sample?_
+*  _What is the total number of ASVs or OTUs per sample?_
 
 Code to generate each plot, add color, compile into a 2 panel plot, and modify the y-axis scale:
 ```
+# Set ggplot to seq_count_plot
 seq_count_plot <- ggplot(asv_counts_summary, aes(x = variable, y = SUM, fill = SITE)) + #Input dataframe info, Added SITE as a fill aesthetic!
   geom_bar(stat = "identity") + #Designates bar plot!
-  theme_minimal() +
+  theme_minimal() + 
   theme(axis.text.x = element_text(angle = 90))+ #Theme aesthetic stuff
   facet_grid(.~YEAR, scales = "free", space = "free")
 
@@ -188,9 +191,12 @@ asv_count_plot <- ggplot(asv_counts_summary, aes(x = variable, y = ASV_COUNT, fi
   theme(axis.text.x = element_text(angle = 90))+ #Theme aesthetic stuff
   facet_grid(.~YEAR, scales = "free", space = "free")
 
+# ggplot R objects, with added ```labs()```, which adds labels for axes and title.
 seq_count_plot + labs(x = "Samples", y = "Total number of reads", title = "Total reads per sample")
 asv_count_plot + labs(x = "Samples", y = "Total number of ASVs", title = "Total ASVs per sample")
-
+```
+Repeat these plots (using the R object ggplot), but add in a specific color palette
+```
 library(RColorBrewer)
 display.brewer.all()
 
@@ -201,6 +207,7 @@ asv_count_plot +
   labs(x = "Samples", y = "Total number of ASVs", title = "Total ASVs per sample") +
   scale_fill_brewer(palette = "Set1")
 
+# cowplot allows us to place both plots in one
 library(cowplot)
 
 plot_grid(seq_count_plot + labs(x = "Samples", y = "Total number of reads", title = "Total reads per sample") + scale_fill_brewer(palette = "Set1") + scale_y_log10(), 
@@ -210,6 +217,10 @@ plot_grid(seq_count_plot + labs(x = "Samples", y = "Total number of reads", titl
 
 ## III. Data pre-processing
 Next, we will use a few different R packages to remove potential contaminants and estimate alpha diversity.
+
+* Phyloseq
+* decontam
+* DivNet / breakaway / corncob
 
 ### IIIa. _Consider blank samples_
 Here, we will be using the [decontam package](https://benjjneb.github.io/decontam/vignettes/decontam_intro.html) from Benjamin Callahan & Nicole Davis. [Paper here](https://microbiomejournal.biomedcentral.com/articles/10.1186/s40168-018-0605-2). The first step is to import your sequence data as a **phyloseq** object.
@@ -233,10 +244,19 @@ Import separate table with additional Site information
 * export phyloseq and add additional metadata
 * save R objects
 
-### IIIc. _Phyloseq & alpha diversity_
+### IIIc. _alpha diversity_
+* DivNet
 
-* Demonstrate uses of phyloseq
-* alpha diversity with DivNet
+### IIIc. _Compositional data_
+
+In this tutorial / set of examples, we are considering tag-sequencing or amplicon data. This type of sequence data is **compositional**, because it does not represent true absolute abundances. The total number of sequences in your dataset is arbitrary, thus it is inappropriate to make conclusions about the _abundance_ of a given species or taxa (what was targeted in the sequencing effort). It is important to acknowledge this in both your an analysis and interpretation of the data.   
+
+Recommended resources to learn more about dealing with compositional data:   
+* Gloor, G. B., Macklaim, J. M., Pawlowsky-Glahn, V. & Egozcue, J. J. Microbiome Datasets Are Compositional: And This Is Not Optional. Front. Microbiol. 8, 57–6 (2017).
+* Weiss, S. et al. Normalization and microbial differential abundance strategies depend upon data characteristics. Microbiome 5, 1–18 (2017).
+* McMurdie, P. J. & Holmes, S. Waste Not, Want Not: Why Rarefying Microbiome Data Is Inadmissible. PLoS Comput Biol 10, e1003531 (2014).   
+* Coenen AR, Hu SK, Luo E, Muratore D, Weitz JS. A Primer for Microbiome Time-Series Analysis. Front Genet. 2020 Apr 21;11:310. 
+
 
 ## IV. Data visualization
 
